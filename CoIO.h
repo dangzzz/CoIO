@@ -12,6 +12,12 @@
 #include <cstring>  
 #include<pthread.h>
 
+#define FREE 0U
+#define WRITE (1U<<31)
+#define QUEUE (2U<<30)
+#define MASK (3U<<30)
+
+
 struct cmp_str  
 {  
     bool operator()(char const *a, char const *b)  
@@ -25,9 +31,9 @@ typedef struct co_file_s{
     
     co_file_s(){
         *lfq = LFQueue();
-        state.store(0);
+        std::atomic_store(state,(unsigned int)0);
     };
-    std::atomic_int32_t state;
+    std::atomic_uint32_t * state;
     LFQueue* lfq;
 
 }co_file_t;
@@ -61,14 +67,57 @@ extern int co_open(const char *path, int oflags,co_file_t ** cofile_ptr){
     return open(path,oflags);
 }
 
-extern size_t co_write(int fildes, const void *buf, size_t nbytes,co_file_t * cofile){
+extern bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile){
     
     
-    int temp_state = cofile->state.load();
+    unsigned int exp = std::atomic_load(cofile->state);
     while(1){
-        if(temp_state == 0){
-            //CAS
+        if(exp == FREE){
+            if(std::atomic_compare_exchange_weak(cofile->state,&exp,WRITE)==true){
+                write(fd,buf,nbytes);
+                do{
+                    exp=WRITE;
+                }while(std::atomic_compare_exchange_weak(cofile->state,&exp,QUEUE)!=true);
+                task_t* task = cofile->lfq->Dequeue();
+                if(task==nullptr){
+                    std::atomic_store(cofile->state,FREE);
+                    return true;
+                }else{
+                    do{
+                        std::atomic_store(cofile->state,WRITE);
+                        write(task->fd,task->buf,task->nbytes);
+                        do{
+                            exp=WRITE;
+                        }while(std::atomic_compare_exchange_weak(cofile->state,&exp,QUEUE)!=true);
+                        task = cofile->lfq->Dequeue();
+                    }while(task!=nullptr);
+                    std::atomic_store(cofile->state,FREE);
+                    return true;
+                }
+                
+
+
+            }else{
+                continue;
+            }
             
+        }else if((exp & MASK)==WRITE){
+            if(std::atomic_compare_exchange_weak(cofile->state,&exp,exp+1)==true){
+                record_t * r=&record_t();
+                task_t t = task_t(fd,buf,nbytes);
+                r->task = &t;
+                cofile->lfq->Enqueue(r);
+
+                std::atomic_fetch_sub(cofile->state,1U);
+                return true;
+            }else{
+                continue;
+            }
+
+        }else if((exp & MASK)==QUEUE){
+            continue;
+        }else{
+            return false;
         }
 
 

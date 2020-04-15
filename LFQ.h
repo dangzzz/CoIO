@@ -3,6 +3,14 @@
 
 
 typedef struct task_s{
+    task_s(int _fd,const void *_buf,size_t _nbytes){
+        fd = _fd;
+        buf = _buf;
+        nbytes = _nbytes;
+    }
+    int fd;
+    const void *buf;
+    size_t nbytes;
 
 }task_t;
 
