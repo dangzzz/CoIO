@@ -15,6 +15,7 @@
 #define FREE 0U
 #define WRITE (1U<<31)
 #define QUEUE (2U<<30)
+#define READ (3U<<30)
 #define MASK (3U<<30)
 
 
@@ -114,15 +115,12 @@ extern bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile){
                 continue;
             }
 
-        }else if((exp & MASK)==QUEUE){
+        }else if((exp & MASK)==QUEUE||(exp & MASK)==READ){
+            exp = std::atomic_load(cofile->state);
             continue;
         }else{
             return false;
         }
-
-
-
-
 
 
     }
