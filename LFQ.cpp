@@ -2,7 +2,9 @@
 
 
 LFQueue::LFQueue(){
-    std::atomic_store(head,(intptr_t)&record_t());
+    head = new std::atomic_intptr_t(0L);
+    tail = new std::atomic_intptr_t(0L);
+    std::atomic_store(head,(intptr_t)new record_t());
     std::atomic_store(tail,std::atomic_load(head));
 
 }
@@ -37,5 +39,5 @@ task_t * LFQueue::Dequeue()//出队列
     }
     while( std::atomic_compare_exchange_weak(head,(intptr_t*)&p,std::atomic_load(p->next)) != true );
 
-    return ((record_t*)std::atomic_load(p->next))->task;
+    return &(((record_t*)std::atomic_load(p->next))->task);
 }

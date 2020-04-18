@@ -31,19 +31,19 @@ typedef struct co_file_s{
     
     
     co_file_s(){
-        *lfq = LFQueue();
-        std::atomic_store(state,(unsigned int)0);
+        lfq =new LFQueue();
+        state = new std::atomic_uint32_t(0U);
     };
     std::atomic_uint32_t * state;
     LFQueue* lfq;
 
 }co_file_t;
 
-std::map<const char*, co_file_t *, cmp_str> co_place;  
+extern std::map<const char*, co_file_t *, cmp_str> co_place;  
 
-pthread_rwlock_t cprwl; 
+extern pthread_rwlock_t cprwl; 
 
-extern int co_open(const char *path, int oflags,co_file_t ** cofile_ptr);
+extern int co_open(const char *path, int oflags,co_file_t *& cofile_ptr);
 
 extern bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile);
 

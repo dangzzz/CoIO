@@ -11,9 +11,15 @@
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<fcntl.h>
-#include"CoIO.h"
 
-//线程函数
+typedef struct s{
+    s(){
+        a=2;b=1;
+    }
+   int a;
+   int b;
+} t;
+
 void *test(void *ptr)
 {
 	int i;
@@ -23,31 +29,13 @@ void *test(void *ptr)
 	{
 		printf("error is %s\n",strerror(errno));
 	}
-    char buf[100];
-	memset(buf,0,sizeof(buf));
-	strcpy(buf,"hello world\n");
-	write(fd,buf,strlen(buf));
-	for(i=0;i<8;i++)
-	{
-		printf("the pthread running ,count: %d\n",i);
-		sleep(1); 
-	}
+    printf("this is %d ya",fd);
+
 
 }
+
 
 int main(void){
-	co_file_t * cofile;
-	
-	int fd = co_open("123",O_RDWR|O_DSYNC,cofile);
-	const char buf[8] = "nihaoya";
-	co_write(fd,buf,sizeof(buf),cofile);
-}
-
-
-/*
-int main(void)
-{
-    
 	pthread_t pId;
     pthread_t p2;
 	int i,ret;
@@ -60,21 +48,14 @@ int main(void)
 	if(ret != 0)
 	{
 		printf("create pthread error!\n");
-		exit(1);
+    
 	}
 
-	for(i=0;i < 5;i++)
-	{
-		printf("main thread running ,count : %d\n",i);
-		sleep(1);
-	}
 	
-	printf("main thread will exit when pthread is over\n");
+
 	//等待线程pId的完成
 	pthread_join(pId,NULL);
 	printf("main thread  exit\n");
 
 	return 0;
-
 }
-*/

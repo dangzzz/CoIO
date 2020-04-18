@@ -7,7 +7,8 @@ typedef struct task_s{
         fd = _fd;
         buf = _buf;
         nbytes = _nbytes;
-    }
+    };
+    task_s(){};
     int fd;
     const void *buf;
     size_t nbytes;
@@ -16,17 +17,11 @@ typedef struct task_s{
 
 typedef struct record_s{
     record_s(){
-       std::atomic_store(next,(intptr_t)0);
+       next = new std::atomic_intptr_t(0L);
     };
-    task_t* task;
+    task_t task;
     std::atomic_intptr_t * next;
 }record_t;
-
-
-extern record_t* NewRecord(){
-
-}
-
 
 
 
