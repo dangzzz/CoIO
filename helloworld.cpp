@@ -11,7 +11,7 @@
 #include<sys/types.h>
 #include<sys/stat.h>
 #include<fcntl.h>
-
+#include"CoIO.h"
 
 //线程函数
 void *test(void *ptr)
@@ -35,7 +35,13 @@ void *test(void *ptr)
 
 }
 
+int main(void){
+	co_file_t ** cofile;
+	co_open("123",O_RDWR|O_DSYNC,cofile);
+}
 
+
+/*
 int main(void)
 {
     
@@ -68,3 +74,4 @@ int main(void)
 	return 0;
 
 }
+*/

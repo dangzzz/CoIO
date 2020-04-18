@@ -2,7 +2,7 @@
 
 
 LFQueue::LFQueue(){
-    std::atomic_store(head,(intptr_t)HeadRecord());
+    std::atomic_store(head,(intptr_t)&record_t());
     std::atomic_store(tail,std::atomic_load(head));
 
 }

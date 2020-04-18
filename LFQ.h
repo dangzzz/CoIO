@@ -1,6 +1,6 @@
 
 #include <atomic>
-
+#include<sys/types.h>
 
 typedef struct task_s{
     task_s(int _fd,const void *_buf,size_t _nbytes){
@@ -27,9 +27,6 @@ extern record_t* NewRecord(){
 
 }
 
-extern record_t* HeadRecord(){
-    return &record_t();
-}
 
 
 
@@ -47,5 +44,5 @@ private:
 std::atomic_intptr_t *head;
 std::atomic_intptr_t *tail;
 
-}
+};
 
