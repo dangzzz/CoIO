@@ -13,13 +13,13 @@ LFQueue::LFQueue(){
 
 
 int LFQueue::Enqueue(record_t * r){
-    intptr_t * null;
+    intptr_t null= (intptr_t)0;
     record_t * p;
     
     do{
-        *null = (intptr_t)0;
+        null = (intptr_t)0;
         p = (record_t *)std::atomic_load(tail); //取链表尾指针的快照
-    }while( std::atomic_compare_exchange_weak(p->next,null,(intptr_t)r)); //如果没有把结点链上，再试
+    }while( std::atomic_compare_exchange_weak(p->next,&null,(intptr_t)r)); //如果没有把结点链上，再试
     
    std::atomic_store(tail,(intptr_t)r);
     //std::atomic_compare_exchange_strong(tail,(intptr_t* )&p,(intptr_t)r);

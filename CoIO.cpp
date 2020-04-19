@@ -1,5 +1,10 @@
 
 #include "CoIO.h"
+#include <iostream>
+
+#include <sys/times.h>
+
+
 
 
 pthread_rwlock_t cprwl; 
@@ -50,6 +55,7 @@ bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile){
     while(1){
         if(exp == FREE){
             if(std::atomic_compare_exchange_weak(cofile->state,&exp,WRITE)==true){
+                std::cout<<fd<<((char *)buf)[5]<<nbytes<<std::endl;
                 write(fd,buf,nbytes);
                 do{
                     exp=WRITE;
@@ -61,6 +67,8 @@ bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile){
                 }else{
                     do{
                         std::atomic_store(cofile->state,WRITE);
+                         std::cout<<"other"<<fd<<((char *)(task->buf))[5]<<task->nbytes<<std::endl;
+                         std::cout<<(long long)(task->buf)<<std::endl;
                         write(fd,task->buf,task->nbytes);
                         do{
                             exp=WRITE;
