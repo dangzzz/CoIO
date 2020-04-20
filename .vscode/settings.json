@@ -35,6 +35,7 @@
         "utility": "cpp",
         "__config": "cpp",
         "__nullptr": "cpp",
-        "cstring": "cpp"
+        "cstring": "cpp",
+        "cstdarg": "cpp"
     }
 }

@@ -34,8 +34,13 @@ void *test(void *ptr)
 
 }
 
-
+#define WRITE (2U<<30)
+#define QUEUE (1U<<30)
+#define READ (3U<<30)
+#define MASK (3U<<30)
 int main(void){
+
+	/*
 	pthread_t pId;
     pthread_t p2;
 	int i,ret;
@@ -56,6 +61,9 @@ int main(void){
 	//等待线程pId的完成
 	pthread_join(pId,NULL);
 	printf("main thread  exit\n");
-
+*/
+	unsigned int a = 0;
+	a = QUEUE;
+	printf(".%u.",a);
 	return 0;
 }

@@ -13,10 +13,10 @@
 #include<pthread.h>
 
 #define FREE 0U
-#define WRITE (1U<<31)
-#define QUEUE (2U<<30)
+#define WRITE (2U<<30)
+#define QUEUE (1U<<30)
 #define READ (3U<<30)
-#define MASK (3U<<30)
+#define MASK (31U<<27)
 
 
 struct cmp_str  
@@ -47,7 +47,7 @@ extern int co_open(const char *path, int oflags,co_file_t *& cofile_ptr);
 
 extern bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile);
 
-extern ssize_t co_read(int fd, void *buf, size_t nbytes,co_file_t * cofile);
+extern ssize_t co_read(int fd, void *buf, size_t nbytes,co_file_t * cofile,char pc);
 
 
 extern int co_close(int fd,const char *path);

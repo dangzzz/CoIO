@@ -33,7 +33,7 @@ task_t * LFQueue::Dequeue()//出队列
     record_t * p = (record_t *)std::atomic_load(head);;
     do{
        
-        if(p->next == (intptr_t)0){
+        if(std::atomic_load(p->next) == (intptr_t)0L){
             return nullptr;
         }
     }

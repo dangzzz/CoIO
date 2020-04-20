@@ -36,10 +36,10 @@ char *randstr(char *pointer, int n,char c)
 void *test2(void * arg)
 {
 
-	int fd = open("/novadir/123",O_RDWR|O_DSYNC|O_APPEND);
+	int fd = open("123",O_RDWR|O_SYNC|O_APPEND);
 	char * ps = (char*) arg;
-	char* a= new char[40960000];
-	const char *buf = randstr(a,40960000,*ps);
+	char* a= new char[4096000];
+	const char *buf = randstr(a,4096000,*ps);
 	printf("%c",buf[5]);
 	printf("%lld\n",(long long)buf);
 
@@ -48,7 +48,8 @@ void *test2(void * arg)
 clock_t t1 = times(tm);
 #endif
 	pthread_mutex_lock(&mutex);
-	write(fd,buf,409600000);
+	write(fd,buf,40960000);
+	fsync(fd);
 	pthread_mutex_unlock(&mutex);
 	#ifdef TEST
 
@@ -65,10 +66,10 @@ printf("%s::过去了%ld\n",ps,t2-t1);
 void *test(void * arg)
 {
 	co_file_t * cofile;
-	int fd = co_open("/novadir/123",O_RDWR|O_DSYNC|O_APPEND,cofile);
+	int fd = co_open("123",O_RDWR|O_SYNC|O_APPEND,cofile);
 	char * ps = (char*) arg;
-	char* a= new char[409600000];
-	const char *buf = randstr(a,409600000,*ps);
+	char* a= new char[40960000];
+	const char *buf = randstr(a,40960000,*ps);
 	printf("%c",buf[5]);
 	printf("%lld\n",(long long)buf);
 
@@ -76,7 +77,7 @@ void *test(void * arg)
 	struct tms* tm = new struct tms();
 clock_t t1 = times(tm);
 #endif
-	co_write(fd,buf,409600000,cofile);
+	co_write(fd,buf,40960000,cofile);
 
 	#ifdef TEST
 	
