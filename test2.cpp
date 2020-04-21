@@ -50,10 +50,10 @@ void *test2(void * arg)
 	
 	
 	int fd[4] = {0,0,0,0};
-	fd[0] = open("1",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
-	fd[1] = open("2",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
-	fd[2] = open("3",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
-	fd[3] = open("4",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
+	fd[0] = open("/novadir/1",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
+	fd[1] = open("/novadir/2",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
+	fd[2] = open("/novadir/3",O_RDWR|O_SYNC|O_APPEND|O_RSYNC);
+	
 	pdata_t * ps = (pdata_t*) arg;
 	int size = 131072;
 	char* a= new char[size];
@@ -66,18 +66,20 @@ void *test2(void * arg)
 	struct timeval start, end;
 	gettimeofday( &start, NULL );  
 #endif
-	for(int i =0 ;i<500;i++){
+	for(int i =0 ;i<1000;i++){
 		
 		
 		int random = rand()%10;
 		int ranfile = rand()%3;
-		if(random <= 5){
+		if(random <= 6){
 			
 			pthread_mutex_lock(&mutex[ranfile]);
+			//usleep(100U);
 			write(fd[ranfile],buf,size);
 			pthread_mutex_unlock(&mutex[ranfile]);
 		}else{
 			pthread_mutex_lock(&mutex[ranfile]);
+			//usleep(100U);
 			read(fd[ranfile],b,size);
 			pthread_mutex_unlock(&mutex[ranfile]);
 		}
@@ -104,10 +106,10 @@ void *test(void * arg)
 	
 	
 	int fd[4] = {0,0,0,0};
-	fd[0] = co_open("1",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[0]);
-	fd[1] = co_open("2",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[1]);
-	fd[2] = co_open("3",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[2]);
-	fd[3] = co_open("4",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[3]);
+	fd[0] = co_open("/novadir/1",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[0]);
+	fd[1] = co_open("/novadir/2",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[1]);
+	fd[2] = co_open("/novadir/3",O_RDWR|O_SYNC|O_APPEND|O_RSYNC,c[2]);
+
 	pdata_t * ps = (pdata_t*) arg;
 	int size = 131072;
 	char* a= new char[size];
@@ -120,12 +122,12 @@ void *test(void * arg)
 	struct timeval start, end;
 	gettimeofday( &start, NULL );  
 #endif
-	for(int i =0 ;i<500;i++){
+	for(int i =0 ;i<1000;i++){
 		
 		
 		int random = rand()%10;
 		int ranfile = rand()%3;
-		if(random <= 5){
+		if(random <= 6){
 			//printf("%c:%d write ranfile:%d\n",ps->pc,i,ranfile);
 			co_write(fd[ranfile],buf,size,c[ranfile]);
 		}else{
@@ -174,16 +176,16 @@ int main(void)
 	int i,ret;
 	//创建子线程，线程id为pId
 	pdata_t * p1s = new pdata_t('a',0);
-	ret = pthread_create(&p1,NULL,test2,p1s);
+	ret = pthread_create(&p1,NULL,test,p1s);
 	
 	pdata_t * p2s = new pdata_t('b',0);
-    ret = pthread_create(&p2,NULL,test2,p2s);
+    ret = pthread_create(&p2,NULL,test,p2s);
 
 	pdata_t * p3s = new pdata_t('c',0);
-	ret = pthread_create(&p3,NULL,test2,p3s);
+	ret = pthread_create(&p3,NULL,test,p3s);
 
 	pdata_t * p4s = new pdata_t('d',0);
-	ret = pthread_create(&p4,NULL,test2,p4s);
+	ret = pthread_create(&p4,NULL,test,p4s);
 	
 	if(ret != 0)
 	{

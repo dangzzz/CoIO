@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include <sys/times.h>
+#include <sys/time.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -36,28 +36,26 @@ char *randstr(char *pointer, int n,char c)
 void *test2(void * arg)
 {
 
-	int fd = open("123",O_RDWR|O_SYNC|O_APPEND);
+	int fd = open("/novadir/123",O_RDWR|O_SYNC|O_APPEND);
 	char * ps = (char*) arg;
-	char* a= new char[4096000];
-	const char *buf = randstr(a,4096000,*ps);
+	char* a= new char[104857600];
+	const char *buf = randstr(a,104857600,*ps);
 	printf("%c",buf[5]);
 	printf("%lld\n",(long long)buf);
 
 #ifdef TEST
-	struct tms* tm = new struct tms();
-clock_t t1 = times(tm);
+	struct timeval start, end;
+	gettimeofday( &start, NULL );  
 #endif
 	pthread_mutex_lock(&mutex);
-	write(fd,buf,40960000);
+	usleep(100000U);
+	write(fd,buf,104857600);
 	fsync(fd);
 	pthread_mutex_unlock(&mutex);
-	#ifdef TEST
+#ifdef TEST
+	gettimeofday( &end, NULL );
+	printf("%s::过去了%ld\n",ps,end.tv_sec*1000000+end.tv_usec-start.tv_sec*1000000-start.tv_usec);
 
-	
-clock_t t2 = times(tm);
-
-
-printf("%s::过去了%ld\n",ps,t2-t1);
 #endif
 }
 
@@ -66,24 +64,24 @@ printf("%s::过去了%ld\n",ps,t2-t1);
 void *test(void * arg)
 {
 	co_file_t * cofile;
-	int fd = co_open("123",O_RDWR|O_SYNC|O_APPEND,cofile);
+	int fd = co_open("/novadir/123",O_RDWR|O_SYNC|O_APPEND,cofile);
 	char * ps = (char*) arg;
-	char* a= new char[40960000];
-	const char *buf = randstr(a,40960000,*ps);
+	char* a= new char[104857600];
+	const char *buf = randstr(a,104857600,*ps);
 	printf("%c",buf[5]);
 	printf("%lld\n",(long long)buf);
 
 #ifdef TEST
-	struct tms* tm = new struct tms();
-clock_t t1 = times(tm);
+	struct timeval start, end;
+	gettimeofday( &start, NULL );  
 #endif
-	co_write(fd,buf,40960000,cofile);
+	co_write(fd,buf,104857600,cofile);
 
-	#ifdef TEST
+#ifdef TEST
+	gettimeofday( &end, NULL );
+	printf("%s::过去了%ld\n",ps,end.tv_sec*1000000+end.tv_usec-start.tv_sec*1000000-start.tv_usec);
 	
-clock_t t2 = times(tm);
-
-printf("%s::过去了%ld\n",ps,t2-t1);
+	
 #endif
 }
 
@@ -112,6 +110,7 @@ int main(void)
     pthread_t p2;
 	pthread_t p3;
 	pthread_t p4;
+	pthread_t p5;
 	int i,ret;
 	//创建子线程，线程id为pId
 	char p1c = 'a';
@@ -129,7 +128,28 @@ int main(void)
 		char p4c = 'd';
 	char * p4s = &p4c;
 	ret = pthread_create(&p4,NULL,test,p4s);
-	
+
+		char p5c = 'e';
+	char * p5s = &p5c;
+	ret = pthread_create(&p5,NULL,test,p5s);
+
+	pthread_t p6;
+		char p6c = 'e';
+	char * p6s = &p6c;
+	ret = pthread_create(&p6,NULL,test,p6s);
+
+	pthread_t p7;
+		char p7c = 'e';
+	char * p7s = &p7c;
+	ret = pthread_create(&p7,NULL,test,p7s);
+
+pthread_t p8;
+		char p8c = 'e';
+	char * p8s = &p8c;
+	ret = pthread_create(&p8,NULL,test,p8s);
+
+
+
 	if(ret != 0)
 	{
 		printf("create pthread error!\n");
@@ -144,6 +164,10 @@ int main(void)
 	pthread_join(p2,NULL);
 	pthread_join(p3,NULL);
 	pthread_join(p4,NULL);
+	pthread_join(p6,NULL);
+pthread_join(p7,NULL);
+	pthread_join(p8,NULL);
+	pthread_join(p5,NULL);
 	printf("main thread  exit\n");
 
 	return 0;

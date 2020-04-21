@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include <sys/times.h>
-
+#include <unistd.h>
 
 
 
@@ -57,7 +57,7 @@ bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile){
         //printf(".%u.",exp);
         if(exp == FREE){
             if(std::atomic_compare_exchange_weak(cofile->state,&exp,WRITE)==true){
-                
+               //usleep(100U);
                 write(fd,buf,nbytes);
                 fsync(fd);
                 do{
@@ -76,6 +76,7 @@ bool co_write(int fd, const void *buf, size_t nbytes,co_file_t * cofile){
                     do{
                         //printf("3");
                         std::atomic_store(cofile->state,WRITE);
+                        //usleep(100U);
                         write(fd,task->buf,task->nbytes);
                         fsync(fd);
                  
@@ -150,7 +151,7 @@ ssize_t co_read(int fd, void *buf, size_t nbytes,co_file_t * cofile,char pc){
             continue;
         }
     }
-
+    //usleep(100U);
     auto ret = read(fd,buf,nbytes);
 
     std::atomic_fetch_sub(cofile->state,1U);
